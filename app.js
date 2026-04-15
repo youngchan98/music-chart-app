@@ -91,6 +91,8 @@ function renderChart(tab) {
                 ${isLiked ? '❤️' : '🤍'}
                 </button>
                 <button class="icon-btn"
+                onclick="addToPlaylist(event, ${track.id})">➕</button>
+                <button class="icon-btn"
                 onclick="selectTrack(event, ${track.id})">▶</button>
             </div>`;
         
@@ -131,36 +133,36 @@ function selectTrack(e, id) {
     renderChart(currentTab);
     }
 
-    // ── 재생 / 일시정지 ──────────────────────────────────
-    function togglePlay() {
+// ── 재생 / 일시정지 ──────────────────────────────────
+function togglePlay() {
     if (!currentTrack) return;
     isPlaying = !isPlaying;
     if (isPlaying) startTimer();
     else           clearInterval(timer);
     updatePlayButtons();
     renderChart(currentTab);
-    }
+}
 
-    // ── 이전 곡 ──────────────────────────────────────────
-    function prevTrack() {
+// ── 이전 곡 ──────────────────────────────────────────
+function prevTrack() {
     if (!currentTrack) return;
     const all = currentTab === 'domestic' ? DOMESTIC : GLOBAL;
     const idx = all.findIndex(t => t.id === currentTrack.id);
     const prev = all[(idx - 1 + all.length) % all.length];
     selectTrack(null, prev.id);
-    }
+}
 
-    // ── 다음 곡 ──────────────────────────────────────────
-    function nextTrack() {
+// ── 다음 곡 ──────────────────────────────────────────
+function nextTrack() {
     if (!currentTrack) return;
     const all = currentTab === 'domestic' ? DOMESTIC : GLOBAL;
     const idx = all.findIndex(t => t.id === currentTrack.id);
     const next = all[(idx + 1) % all.length];
     selectTrack(null, next.id);
-    }
+}
 
-    // ── 타이머 (1초마다 진행) ────────────────────────────
-    function startTimer() {
+// ── 타이머 (1초마다 진행) ────────────────────────────
+function startTimer() {
     clearInterval(timer);
     timer = setInterval(() => {
         if (!currentTrack || !isPlaying) return;
@@ -170,18 +172,18 @@ function selectTrack(e, id) {
         return;
         }
         updateProgress();
-    }, 1000);
-    }
+        }, 1000);
+}
 
-    // ── 좋아요 토글 ──────────────────────────────────────
-    function toggleLike(e, id) {
+// ── 좋아요 토글 ──────────────────────────────────────
+function toggleLike(e, id) {
     e.stopPropagation();
     liked[id] = !liked[id];
     renderChart(currentTab);
-    }
+}
 
-    // ── UI 전체 업데이트 ─────────────────────────────────
-    function updateUI() {
+// ── UI 전체 업데이트 ─────────────────────────────────
+function updateUI() {
     if (!currentTrack) return;
     const t = currentTrack;
 
@@ -199,10 +201,10 @@ function selectTrack(e, id) {
 
     updateProgress();
     updatePlayButtons();
-    }
+}
 
-    // ── 진행바 업데이트 ──────────────────────────────────
-    function updateProgress() {
+// ── 진행바 업데이트 ──────────────────────────────────
+function updateProgress() {
     if (!currentTrack) return;
     const pct = (progress / currentTrack.duration * 100).toFixed(1) + '%';
 
@@ -210,21 +212,137 @@ function selectTrack(e, id) {
     document.getElementById('pbBarFill').style.width    = pct;
     document.getElementById('curTime').textContent      = formatTime(progress);
     document.getElementById('pbCurTime').textContent    = formatTime(progress);
-    }
+}
 
-    // ── 재생 버튼 아이콘 업데이트 ────────────────────────
-    function updatePlayButtons() {
+// ── 재생 버튼 아이콘 업데이트 ────────────────────────
+function updatePlayButtons() {
     const icon = isPlaying ? '⏸' : '▶';
     document.getElementById('playBtn').innerHTML   = icon;
     document.getElementById('pbPlayBtn').innerHTML = icon;
-    }
+}
 
-    // ── 시간 포맷 (초 → 분:초) ──────────────────────────
-    function formatTime(seconds) {
+// ── 시간 포맷 (초 → 분:초) ──────────────────────────
+function formatTime(seconds) {
     const m  = Math.floor(seconds / 60);
     const s  = String(seconds % 60).padStart(2, '0');
     return `${m}:${s}`;
+}
+
+// ── 페이지 로드 시 차트 그리기 ───────────────────────
+renderChart('domestic');
+
+// ── 플레이리스트 ─────────────────────────────────────
+let playlist = JSON.parse(localStorage.getItem('playlist')) || [];
+
+// 플레이리스트에 곡 추가
+function addToPlaylist(e, id) {
+    e.stopPropagation();
+    const all = currentTab === 'domestic' ? DOMESTIC : GLOBAL;
+    const track = all.find(t => t.id === id);
+    if (!track) return;
+
+    if (playlist.find(t => t.id === id)) {
+        showToast('이미 플레이리스트에 있어요!');
+        return;
+    }
+    playlist.push(track);
+    localStorage.setItem('playlist', JSON.stringify(playlist));
+    showToast(`${track.title} 추가됨 ✅`);
+    renderPlaylistPage();
+}
+
+// 플레이리스트에서 곡 삭제
+function removeFromPlatlist(id) {
+    playlist = playlist.filter(t => t.id !== id);
+    localStorage.setItem('playlist', JSON.stringify(playlist));
+    renderPlaylistPage();
+}
+
+// 플레이리스트 페이지 렌더링
+function renderPlaylistPage() {
+    const el = document.getElementById('playlistItems');
+    if (!el) return;
+     if (playlist.length === 0) {
+        el.innerHTML = `
+            <div class="playlist-empty">
+                <div style="font-size:48px;">🎵</div>
+                <p>아직 추가된 곡이 없어요</p>
+                <p style="font-size:13px;color:var(--muted);margin-top:8px;">차트에서 ➕ 버튼을 눌러 추가해보세요!</p>
+            </div>`;
+        return;
     }
 
-    // ── 페이지 로드 시 차트 그리기 ───────────────────────
-    renderChart('domestic');
+    el.innerHTML = playlist.map((track, index) => `
+       <div class="track-item ${currentTrack && currentTrack.id === track.id ? 'playing' : ''}"
+       onclick="selectTrack(null, ${track.id})">
+       <div class="rank-num rank-other">${index + 1}</div>
+       <div class="track-cover">${track.emoji}</div>
+       <div class="track-info">
+           <div class="track-title">${track.title}</div>
+           <div class="track-artist">${track.artist}</div>
+       </div>
+       <div class="track-change"></div>
+       <div class="track-actions">
+           <button class="icon-btn" onclick="event.stopPropagation(); removeFromPlaylist(${track.id})">🗑️</button>
+           <button class="icon-btn" onclick="selectTrack(event, ${track.id})">▶</button>
+       </div>
+       </div>`).join('');
+}
+
+// 페이지 전환
+function showPage(page) {
+    document.getElementById('chartPage').style.display    = page === 'chart'    ? 'block' : 'none';
+    document.getElementById('playlistPage').style.display = page === 'playlist' ? 'block' : 'none';
+
+    // 히어로 섹션도 차트일 때만 보이게
+    document.querySelector('.hero').style.display = page === 'chart' ? 'flex' : 'none';
+
+    document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+    if (page === 'chart')    document.querySelector('nav a:nth-child(1)').classList.add('active');
+    if (page === 'playlist') document.querySelector('nav a:nth-child(4)').classList.add('active');
+
+    if (page === 'playlist') renderPlaylistPage();
+}
+
+// 토스트 메시지
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+// 플레이리스트에서 다음 곡 재생
+function nextTrack() {
+    if (!currentTrack) return;
+
+    const isPlaylistVisible = document.getElementById('playlistPage').style.display === 'block';
+    const list = isPlaylistVisible && playlist.length > 0 ? playlist
+        : currentTab === 'domestic' ? DOMESTIC : GLOBAL;
+    
+    const idx = list.findIndex(t => t.id === currentTrack.id);
+    if (idx === -1) {
+        const all = currentTab === 'domestic' ? DOMESTIC : GLOBAL;
+        const i = all.findIndex(t => t.id === currentTrack.id);
+        selectTrack(null, all[(i + 1) % all.length].id);
+        return;
+    }
+    selectTrack(null, list[(idx + 1) % list.length].id);
+}
+
+function prevTrack() {
+    if (!currentTrack) return;
+
+    const isPlaylistVisible = document.getElementById('playlistPage').style.display === 'block';
+    const list = isPlaylistVisible && playlist.length > 0 ? playlist
+        : currentTab === 'domestic' ? DOMESTIC : GLOBAL;
+    
+    const idx = list.findIndex(t => t.id === currentTrack.id);
+    if (idx === -1) {
+        const all = currentTab === 'domestic' ? DOMESTIC : GLOBAL;
+        const i = all.findIndex(t => t.id ===currentTrack.id);
+        selectTrack(null, all[(i - 1 + all.length) % all.length].id);
+        return;
+    }
+    selectTrack(null, list[(idx - 1 + list.length) % list.length].id);
+}

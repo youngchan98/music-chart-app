@@ -16,10 +16,10 @@
      <header>
         <div class="logo">SOUNDWAVE</div>
         <nav>
-            <a class="active">차트</a>
+            <a class="active" onclick="showPage('chart')">차트</a>
             <a>장르</a>
             <a>신곡</a>
-            <a>플레이리스트</a>
+            <a onclick="showPage('playlist')">플레이리스트</a>
         </nav>
         <div class="header-actions">
             <button class="btn-ghost">로그인</button>
@@ -50,78 +50,97 @@
         </div>
 
     <!-- 메인 컨텐츠 -->
-    <div class="main">
-        
-        <!-- 왼쪽: 차트 목록 -->
-        <div class="chart-section">
-            <div class="section-header">
-                <div class="section-title">
-                    <div class="dot"></div>
-                    실시간 TOP 20
-                </div>
-                <div class="chart-tabs">
-                    <button class="tab-btn active" onclick="switchTab(this, 'domestic')">국내</button>
-                    <button class="tab-btn" onclick="switchTab(this, 'global')">해외</button>
-                </div>
-            </div>
-            <div class="chart-list" id="chartList"></div>
-        </div>
+    <div id="chartPage">
+        <div class="main">
 
-        <!-- 오른쪽: 사이드바 -->
-        <div class="sidebar">
-
-            <!-- 지금 재생 중 -->
-            <div class="card">
-                <div class="section-title" style="margin-bottom:16px">
-                    <div class="dot"></div>
-                    지금 재생 중
-                </div>
-                <div class="now-playing-cover" id="npCover">🎵</div>
-                <div class="np-title" id="npTitle">곡을 선택하세요</div>
-                <div class="np-artist" id="npArtist">-</div>
-
-                <!-- 진행바 -->
-                <div class="progress-wrap">
-                    <div class="progress-bg">
-                        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+            <!-- 왼쪽: 차트 목록 -->
+            <div class="chart-section">
+                <div class="section-header">
+                    <div class="section-title">
+                        <div class="dot"></div>
+                        실시간 TOP 20
                     </div>
-                    <div class="progress-times">
-                        <span id="curTime">0:00</span>
-                        <span id="totalTime">0:00</span>
+                    <div class="chart-tabs">
+                        <button class="tab-btn active" onclick="switchTab(this, 'domestic')">국내</button>
+                        <button class="tab-btn" onclick="switchTab(this, 'global')">해외</button>
                     </div>
                 </div>
-
-                <!-- 컨트롤 버튼 -->
-                <div class="controls">
-                    <button class="ctrl-btn" onclick="prevTrack()">⏮</button>
-                    <button class="ctrl-play" id="playBtn" onclick="togglePlay()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                            <polygon points="6,3 20 12 6,21"/>
-                        </svg>
-                    </button>
-                    <button class="ctrl-btn" onclick="nextTrack()">⏭</button>
-                </div>
+                <div class="chart-list" id="chartList"></div>
             </div>
 
-            <!-- 트렌딩 태그 -->
-            <div class="card">
-                <div class="section-title" style="margin-bottom:14px">
-                    <div class="dot" style="background:#00b8ff;"></div>
-                    트렌딩 태그
+            <!-- 오른쪽: 사이드바 -->
+            <div class="sidebar">
+
+                <!-- 지금 재생 중 -->
+                <div class="card">
+                    <div class="section-title" style="margin-bottom:16px">
+                        <div class="dot"></div>
+                        지금 재생 중
+                    </div>
+                    <div class="now-playing-cover" id="npCover">🎵</div>
+                    <div class="np-title" id="npTitle">곡을 선택하세요</div>
+                    <div class="np-artist" id="npArtist">-</div>
+
+                    <!-- 진행바 -->
+                    <div class="progress-wrap">
+                        <div class="progress-bg">
+                            <div class="progress-fill" id="progressFill" style="width:0%"></div>
+                        </div>
+                        <div class="progress-times">
+                            <span id="curTime">0:00</span>
+                            <span id="totalTime">0:00</span>
+                        </div>
+                    </div>
+
+                    <!-- 컨트롤 버튼 -->
+                    <div class="controls">
+                        <button class="ctrl-btn" onclick="prevTrack()">⏮</button>
+                        <button class="ctrl-play" id="playBtn" onclick="togglePlay()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="6,3 20 12 6,21"/>
+                            </svg>
+                        </button>
+                        <button class="ctrl-btn" onclick="nextTrack()">⏭</button>
+                    </div>
                 </div>
-                <div class="tag-list">
-                    <span class="tag"># 발라드</span>
-                    <span class="tag"># K-POP</span>
-                    <span class="tag"># 힙합</span>
-                    <span class="tag"># R&B</span>
-                    <span class="tag"># 인디</span>
-                    <span class="tag"># OST</span>
-                    <span class="tag"># 팝</span>
-                    <span class="tag"># 댄스</span>
+
+                <!-- 트렌딩 태그 -->
+                <div class="card">
+                    <div class="section-title" style="margin-bottom:14px">
+                        <div class="dot" style="background:#00b8ff;"></div>
+                        트렌딩 태그
+                    </div>
+                    <div class="tag-list">
+                        <span class="tag"># 발라드</span>
+                        <span class="tag"># K-POP</span>
+                        <span class="tag"># 힙합</span>
+                        <span class="tag"># R&B</span>
+                        <span class="tag"># 인디</span>
+                        <span class="tag"># OST</span>
+                        <span class="tag"># 팝</span>
+                        <span class="tag"># 댄스</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- 플레이리스트 페이지 -->
+    <div id="playlistPage" style="display:none;">
+        <div class="main" style="grid-template-columns: 1fr;">
+            <div class="chart-section">
+                <div class="section-header">
+                    <div class="section-title">
+                        <div class="dot" style="background:var(--accent2);"></div>
+                        내 플레이리스트
+                    </div>
+                    <div style="font-size:13px; color:var(--muted);" id="playlistCount">0곡</div>
+                </div>
+                <div class="chart-list" id="playlistItems"></div>
+            </div>
+        </div>
+    </div>
+        
 
     <!-- 하단 플레이어 바 -->
     <div id="player-bar">
@@ -158,5 +177,6 @@
 
     <!-- JS파일 연결 -->
      <script src="app.js"></script>
+     <div id="toast"></div>
 </body>
 </html>
